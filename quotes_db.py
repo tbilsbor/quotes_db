@@ -154,6 +154,7 @@ def quotes_from_text():
                 print("{}: {}".format(field, data))
             conf = input("All correct? ").lower()
             if conf == 'q':
+                print("Quitting")
                 return None
             if conf != 'y':
                 continue
@@ -167,3 +168,8 @@ def quotes_from_text():
                 print("Added quote\n")
                 # Re-initialize notes
                 fields['Notes'] = ""
+    print("No more quotes")
+    conf = input("Clear file? Type 'CLEAR' to clear")
+    if conf == 'CLEAR':
+        with open('quotes.txt', mode='w') as out_file:
+            out_file.write("")
