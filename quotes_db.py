@@ -9,20 +9,9 @@ Tracks quotes and their sources and generates citations in different styles
 """
 
 import datetime
-import logging
 import os
 import pandas as pd
 from shutil import copy
-
-log_format_string = ("%(asctime)s - "
-                     "%(levelname)s - "
-                     "%(funcName)s - "
-                     "%(message)s")
-logging.basicConfig(level=logging.INFO, 
-                    filename='log.txt', 
-                    filemode='a', 
-                    format=log_format_string,
-                    datefmt='%y-%b-%d %H:%M:%S')
 
 BOOK_FIELDS = {
         '1': 'Author',
@@ -51,7 +40,6 @@ def load_books():
         books.sort_index(inplace=True)
     except IOError:
         print("Books file not found")
-        logging.error("Books file not found")
         return None
     return books
 
@@ -62,7 +50,6 @@ def load_quotes():
         quotes.sort_index(inplace=True)
     except IOError:
         print("Quotes file not found")
-        logging.error("Quotes file not found")
         return None
     return quotes
 
@@ -79,7 +66,6 @@ def backup_files():
     copy('books.csv', newpath)
     copy('quotes.csv', newpath)
     print("Backup completed")
-    logging.info("backed up data files")
 
 def add_book():
     """add a book to the database"""
@@ -95,7 +81,6 @@ def add_book():
         books = books.append(append_frame, verify_integrity=True)
     except ValueError:
         print("Already in books database")
-        logging.error("%s already in books database", fields['Title'])
         return None
     for field, data in fields.items():
         print("{}: {}".format(field, data))
@@ -111,7 +96,6 @@ def add_book():
             return None
     books.to_csv('books.csv')
     print("File saved")
-    logging.info("books database saved")
     
 def quotes_from_text():
     """Add quotes to database from text file"""
@@ -159,8 +143,8 @@ def quotes_from_text():
             if conf != 'y':
                 continue
             else:
-                # Append. Field data except for notes is maintained unless
-                # changed
+                # Append. 
+                # Field data except for notes is maintained unless changed
                 quotes = load_quotes()
                 quotes = quotes.append(append_frame)
                 quotes.reset_index(drop=True, inplace=True)
@@ -169,7 +153,8 @@ def quotes_from_text():
                 # Re-initialize notes
                 fields['Notes'] = ""
     print("No more quotes")
-    conf = input("Clear file? Type 'CLEAR' to clear")
+    conf = input("Clear file? Type 'CLEAR' to clear: ")
     if conf == 'CLEAR':
         with open('quotes.txt', mode='w') as out_file:
             out_file.write("")
+        print("File cleared")
