@@ -6,11 +6,6 @@ Created on Fri Feb 15 10:03:16 2019
 @author: toddbilsborough
 
 Tracks quotes and their sources and generates citations in different styles
-
-TODO
--Accept *P for page number
--Citations functions
--Confirm that book is in file, add if not
 """
 
 import datetime
@@ -44,7 +39,8 @@ QUOTE_FIELDS = {
         '1': 'Book',
         '2': 'Page Number',
         '3': 'Tags',
-        '4': 'Text'
+        '4': 'Text',
+        '5': 'Notes'
         }
 
 def load_books():
@@ -124,18 +120,26 @@ def quotes_from_text():
         backup_files()
     with open('quotes.txt', mode='r') as in_file:
         text = in_file.read().split('\n')
+    # Initialize fields
     fields = {key: None for key in QUOTE_FIELDS.values()}
+    # Text needs to be an empty string for appending
     fields['Text'] = ""
+    # Notes needs to be an empty string so it can be omitted
+    fields['Notes'] = ""
     books = load_books()
     for line in text:
         if line == "" or line == "\n":
             continue
+        # If it's line for a field...
         if line[0] == '*':
+            # Split off the field name, which comes before the colon
             line = line.split(': ')
             if line[0][1].lower() == 'p':
                 line[0] = '*Page Number'
+            # Rejoin, in case there are colons in the field data
             fields[line[0][1:]] = ': '.join(line[1:])
             continue
+        # Otherwise it's the actual text of the quote
         else:
             fields['Text'] = line
             if any([val is None for val in fields.values()]):
@@ -154,8 +158,12 @@ def quotes_from_text():
             if conf != 'y':
                 continue
             else:
+                # Append. Field data except for notes is maintained unless
+                # changed
                 quotes = load_quotes()
                 quotes = quotes.append(append_frame)
                 quotes.reset_index(drop=True, inplace=True)
                 quotes.to_csv('quotes.csv')
                 print("Added quote\n")
+                # Re-initialize notes
+                fields['Notes'] = ""
